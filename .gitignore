@@ -19,3 +19,6 @@ buildNumber.properties
 .settings/org.eclipse.jdt.apt.core.prefs
 .settings/org.eclipse.jdt.core.prefs
 .settings/org.eclipse*
+org.eclipse.jdt.apt.core.prefs
+org.eclipse.jdt.core.prefs
+org.eclipse*

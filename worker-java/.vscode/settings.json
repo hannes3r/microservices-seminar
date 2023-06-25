@@ -1,0 +1,12 @@
+{
+    "java.compile.nullAnalysis.mode": "disabled",
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "Main",
+            "database": "${workspaceFolder:worker-java}/Main.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
