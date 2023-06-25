@@ -22,3 +22,11 @@ buildNumber.properties
 org.eclipse.jdt.apt.core.prefs
 org.eclipse.jdt.core.prefs
 org.eclipse*
+
+# node
+node_modules
+package-lock.json
+
+# python
+env
+__pycache__
