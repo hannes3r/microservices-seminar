@@ -155,7 +155,6 @@ public class Worker {
     String iban = (String) job.getVariablesAsMap().get("iban");
 
     Statement stmt = null;
-    ResultSet rs = null;
 
     HashMap<String, Object> variables = new HashMap<>();
 
