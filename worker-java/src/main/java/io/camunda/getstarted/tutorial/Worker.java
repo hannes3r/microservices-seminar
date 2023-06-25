@@ -10,10 +10,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import io.camunda.zeebe.client.api.response.ActivatedJob;
-import io.camunda.zeebe.client.api.worker.JobClient;
 import io.camunda.zeebe.spring.client.EnableZeebeClient;
-import io.camunda.zeebe.spring.client.annotation.ZeebeWorker;
-
 import java.sql.*;
 
 class Concert {
@@ -94,7 +91,7 @@ public class Worker {
   @JobWorker(type = "check-ticket-availability")
   public Map<String, Object> checkTicketAvailability(final ActivatedJob job) {
 
-    String band = (String) job.getVariablesAsMap().get("concert");
+    String concert = (String) job.getVariablesAsMap().get("concert");
 
     Statement stmt = null;
     ResultSet rs = null;
@@ -103,21 +100,72 @@ public class Worker {
 
     try {
       stmt = c.createStatement();
-      rs = stmt.executeQuery("SELECT c.numberOfTickets  FROM concerts c WHERE c.band = '" + band + "'");
+      rs = stmt.executeQuery("SELECT c.numberOfTickets  FROM concerts c WHERE c.band = '" + concert + "'");
       int numberOfTickets = 0;
-      System.out.println("SELECT c.numberOfTickets  FROM concerts c WHERE c.band = '" + band + "'");
-      System.out.println(band);
+      System.out.println("SELECT c.numberOfTickets  FROM concerts c WHERE c.band = '" + concert + "'");
+      System.out.println(concert);
 
       while (rs.next()) {
         numberOfTickets = rs.getInt("numberOfTickets");
       }
       System.out.println(numberOfTickets);
 
-      rs = stmt.executeQuery("SELECT COUNT() as count FROM bookings b WHERE band = '" + band + "'");
+      rs = stmt.executeQuery("SELECT COUNT() as count FROM bookings b WHERE band = '" + concert + "'");
       while (rs.next()) {
         variables.put("is_available", rs.getInt("count") < numberOfTickets);
       }
       rs.close();
+      stmt.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return variables;
+  }
+
+  @JobWorker(type = "get-price")
+  public Map<String, Object> getPrice(final ActivatedJob job) {
+
+    String concert = (String) job.getVariablesAsMap().get("concert");
+
+    Statement stmt = null;
+    ResultSet rs = null;
+
+    HashMap<String, Object> variables = new HashMap<>();
+
+    try {
+      stmt = c.createStatement();
+      rs = stmt.executeQuery("SELECT c.price  FROM concerts c WHERE c.band = '" + concert + "'");
+
+      while (rs.next()) {
+        variables.put("price", rs.getDouble("price"));
+      }
+      rs.close();
+      stmt.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return variables;
+  }
+
+  @JobWorker(type = "store-data-as-booking")
+  public Map<String, Object> storeDataAsBooking(final ActivatedJob job) {
+
+    String concert = (String) job.getVariablesAsMap().get("concert");
+    String name = (String) job.getVariablesAsMap().get("name");
+    String iban = (String) job.getVariablesAsMap().get("iban");
+
+    Statement stmt = null;
+    ResultSet rs = null;
+
+    HashMap<String, Object> variables = new HashMap<>();
+
+    try {
+      variables.put("success", false);
+      stmt = c.createStatement();
+      stmt.execute("INSERT INTO bookings (name, band, iban) VALUES  ('" + name + "', '" + concert + "', '" + iban + "');");
+
+      variables.put("success", true);
+
       stmt.close();
     } catch (SQLException e) {
       e.printStackTrace();
