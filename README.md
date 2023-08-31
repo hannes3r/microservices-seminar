@@ -1,3 +1,1 @@
-# Microservices for ticket booking
-
-*test*
+# Microservices for ticket booking workflow
